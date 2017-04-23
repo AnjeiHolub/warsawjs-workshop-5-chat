@@ -7,13 +7,31 @@ socket.emit('message', 'Hello!');
 // socket.emit('helloServer', `Hello I'm new User`);
 
 var accessToken = null;
+var accessUser = null;
 
-socket.on('tokenUserAuthorized', (token) => {
-  accessToken = token;
+socket.on('tokenUserAuthorized', (data) => {
+  accessToken = data.token;
+  accessUser = data.user;
 });
 
 socket.on('hello', (message) => {
   writeLine(message);
+});
+
+socket.on('errorPassword', (message) => {
+  console.log(message);
+});
+
+socket.on('successLogin', (message) => {
+  console.log(message);
+});
+
+socket.on('existsLogin', (message) => {
+  console.log(message);
+});
+
+socket.on('notLogin', (message) => {
+  console.log(message);
 });
 
 socket.on('msg', (message) => {
@@ -39,6 +57,6 @@ cli.setPrompt('> ');
 cli.prompt();
 
 cli.on('line', (line) => {
-  var data = {line: line, token: accessToken};
+  var data = {line: line, token: accessToken, user: accessUser};
   socket.emit('msg', data);
 });

@@ -48,7 +48,8 @@ createServer().then((server) => {
 
                 for (i = 0; i < users.length; i++) {
                     if (users[i].identifier === user[0]) {
-                        console.log('Nazwa usera jest zajęta');
+                        socket.emit('existsLogin', 'Nazwa użytkownika jest zajęta!');
+                        console.log('Nazwa użytkownika jest zajęta');
                         registerUser = false;
                         break;
                     }
@@ -69,20 +70,30 @@ createServer().then((server) => {
                     if (users[strNumber].identifier === userLogin[0]) {
                         if (users[strNumber].password === userLogin[1]) {
                             console.log('User został zalogowany!');
+                            socket.emit('successLogin', 'Zostałeś pomyślnie zalogowany!');
                             users[strNumber].token = uuidV4();
-                            socket.emit('tokenUserAuthorized', users[strNumber].token);
+                            socket.emit('tokenUserAuthorized', {token: users[strNumber].token, user: users[strNumber].identifier});
                             break;
-                        }
-                                                
-                    }
+                        } else {
+                            socket.emit('errorPassword', 'Podane dane są niepoprawne!');
+                        }                         
+                    } 
                 }
+
+            } else if (msg.line[0] === '/' && msg.line.slice(1).startsWith('logout')) {
+                socket.emit('logoutUser', )
             } else {
-                console.log(msg.token);
+                var statusLogin = false;
                 for (i = 0; i < users.length; i++) {
                     if (users[i].token === msg.token) {
-                        socket.broadcast.emit('msg', msg.line);
+                        socket.broadcast.emit('msg', msg.user + " : " + msg.line);
+                        statusLogin = true;
                         break;
                     }
+                    
+                }
+                if (!statusLogin) {
+                    socket.emit('notLogin', 'Nie jesteś zalogowany!');
                 }
                 
             }
